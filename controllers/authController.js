@@ -1,25 +1,14 @@
 const User = require('../models/User');
 const CryptoJS = require("crypto-js");
 const jwt = require('jsonwebtoken');
-const admin = require("firebase-admin");
 
 module.exports = {
     register: async (req, res) => {
-        const { userID, name, email, roleID, image, password } = req.body; // Thêm password vào body
+        const { name, email, roleID, image, password } = req.body;
+
+        console.log("Request body:", req.body); // Log body yêu cầu
 
         try {
-            // Kiểm tra xem người dùng có tồn tại trong Firebase Authentication không
-            let firebaseUser;
-            try {
-                firebaseUser = await admin.auth().getUserByEmail(email);
-            } catch (error) {
-                // Xử lý lỗi nếu người dùng không tìm thấy
-                if (error.code === 'auth/user-not-found') {
-                    return res.status(404).json({ message: "Firebase user not found. Please register first." });
-                }
-                return res.status(500).json({ message: error.message });
-            }
-
             // Kiểm tra xem người dùng đã tồn tại trong MongoDB chưa
             let user = await User.findOne({ email });
 
@@ -30,20 +19,26 @@ module.exports = {
 
             // Tạo người dùng mới nếu không tìm thấy trong MongoDB
             const hashedPassword = CryptoJS.AES.encrypt(password, process.env.SECRET).toString(); // Mã hóa mật khẩu
+
+            // Tạo userID tự động (ví dụ: UUID, hoặc bất kỳ định dạng nào bạn muốn)
+            const userID = new Date().getTime().toString(); // Dùng timestamp làm userID
+
             const newUser = new User({
-                userID: firebaseUser.uid,
+                userID,
                 name,
                 email,
                 roleID,
                 image,
-                // password: hashedPassword // Lưu mật khẩu đã mã hóa
+                password: hashedPassword // Lưu mật khẩu đã mã hóa
             });
+
             user = await newUser.save();
 
+            console.log("User created successfully:", user); // Log thông tin người dùng đã tạo
             res.status(200).json(user);
 
         } catch (error) {
-            console.error(error);
+            console.error("Error during registration:", error); // Ghi lại lỗi
             res.status(500).json({ message: error.message });
         }
     },
@@ -71,6 +66,7 @@ module.exports = {
             res.status(200).json({ ...other, userToken });
 
         } catch (error) {
+            console.error("Error during login:", error); // Ghi lại lỗi
             res.status(500).json({ message: error.message });
         }
     }
