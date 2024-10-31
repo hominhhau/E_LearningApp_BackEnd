@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
     userID: {
-        type: String,
+        type: String,  // Sử dụng Number thay vì Integer
         required: true
     },
     name: {
@@ -14,10 +14,10 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-
-    roleID: {
+    role: {
         type: String,
-        required: true
+        required: true,
+        enum: ['learner', 'teacher', 'admin']
     },
     image: {
         type: String,

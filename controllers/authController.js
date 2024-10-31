@@ -1,73 +1,78 @@
 const User = require('../models/User');
+const PhoneAuth = require('../models/PhoneAuth');
 const CryptoJS = require("crypto-js");
 const jwt = require('jsonwebtoken');
 
 module.exports = {
-    register: async (req, res) => {
-        const { name, email, roleID, image, password } = req.body;
-
-        console.log("Request body:", req.body); // Log body yêu cầu
+    registerByPhone: async (req, res) => {
+        const { name, email, phone, password, image, role } = req.body;
 
         try {
-            // Kiểm tra xem người dùng đã tồn tại trong MongoDB chưa
-            let user = await User.findOne({ email });
+            let user = await User.findOne({ phone });
 
             if (user) {
-                // Nếu người dùng đã tồn tại, trả về thông báo
                 return res.status(409).json({ message: "User already exists." });
+            } else {
+                const hashedPassword = CryptoJS.AES.encrypt(password, process.env.SECRET).toString();
+
+                // Tạo userID duy nhất dựa trên timestamp hiện tại
+                const userID = `${Date.now()}`;
+
+                const newUser = new User({
+                    userID,
+                    name,
+                    email,
+                    image,
+                    role,
+                });
+                user = await newUser.save();
+
+                const newPhoneAuth = new PhoneAuth({
+                    phoneNumber: phone,
+                    password: hashedPassword,
+                    userID
+                });
+                await newPhoneAuth.save();
+
+                res.status(200).json(user);
             }
 
-            // Tạo người dùng mới nếu không tìm thấy trong MongoDB
-            const hashedPassword = CryptoJS.AES.encrypt(password, process.env.SECRET).toString(); // Mã hóa mật khẩu
-
-            // Tạo userID tự động (ví dụ: UUID, hoặc bất kỳ định dạng nào bạn muốn)
-            const userID = new Date().getTime().toString(); // Dùng timestamp làm userID
-
-            const newUser = new User({
-                userID,
-                name,
-                email,
-                roleID,
-                image,
-                password: hashedPassword // Lưu mật khẩu đã mã hóa
-            });
-
-            user = await newUser.save();
-
-            console.log("User created successfully:", user); // Log thông tin người dùng đã tạo
-            res.status(200).json(user);
-
         } catch (error) {
-            console.error("Error during registration:", error); // Ghi lại lỗi
+            console.error("Error during registration:", error);
             res.status(500).json({ message: error.message });
         }
     },
 
-    login: async (req, res) => {
+    loginByPhone: async (req, res) => {
+        const { phone, password } = req.body;
+
         try {
-            const user = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0, email: 0 });
+            const phoneAuth = await PhoneAuth.findOne({ phoneNumber: phone });
+            if (!phoneAuth) {
+                return res.status(404).json({ message: "User not found." });
+            } else {
+                const user = await User.findOne({ userID: phoneAuth.userID });
 
-            if (!user) return res.status(401).json("Wrong credentials!");
+                if (!user) {
+                    return res.status(404).json({ message: "User not found." });
+                } else {
+                    return res.status(200).json(user);
+                }
+            }
 
-            // Giải mã mật khẩu đã lưu và so sánh
-            const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
-            const decrypted = decryptedPassword.toString(CryptoJS.enc.Utf8);
+            const bytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
+            const originalPassword = bytes.toString(CryptoJS.enc.Utf8);
 
-            if (decrypted !== req.body.password) return res.status(401).json("Wrong credentials!");
+            if (originalPassword !== password) {
+                return res.status(401).json({ message: "Wrong password." });
+            }
 
-            // Tạo JWT
-            const userToken = jwt.sign(
-                { id: user._id, role: user.roleID, email: user.email },
-                process.env.JWT_SEC,
-                { expiresIn: "21d" }
-            );
-
-            const { password, ...other } = user._doc;
-            res.status(200).json({ ...other, userToken });
 
         } catch (error) {
-            console.error("Error during login:", error); // Ghi lại lỗi
+            console.error("Error during login:", error);
             res.status(500).json({ message: error.message });
         }
+
+
     }
 };

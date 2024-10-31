@@ -3,11 +3,11 @@ const { auth } = require('firebase-admin');
 const mongoose = require('mongoose');
 
 const PhoneAuthSchema = new mongoose.Schema({
-    authID: {
+    userID: {
         type: String,
         required: true
     },
-    phoneNumBer: {
+    phoneNumber: {
         type: String,
         required: true
     },

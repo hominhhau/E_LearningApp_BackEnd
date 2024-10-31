@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const app = express();
 const port = 6002;
 
@@ -26,6 +27,10 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+    origin: '*',
+    credentials: true,
+}));
 app.use('/', authRoutes);
 
 
