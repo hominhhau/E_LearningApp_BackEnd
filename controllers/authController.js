@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const PhoneAuth = require('../models/PhoneAuth');
 const CryptoJS = require("crypto-js");
-const jwt = require('jsonwebtoken');
 
 module.exports = {
     registerByPhone: async (req, res) => {
@@ -47,32 +46,25 @@ module.exports = {
         const { phone, password } = req.body;
 
         try {
-            const phoneAuth = await PhoneAuth.findOne({ phoneNumber: phone });
-            if (!phoneAuth) {
+            const authPhone = await PhoneAuth.findOne({ phoneNumber: phone });
+            if (!authPhone) {
                 return res.status(404).json({ message: "User not found." });
             } else {
-                const user = await User.findOne({ userID: phoneAuth.userID });
+                const bytes = CryptoJS.AES.decrypt(authPhone.password, process.env.SECRET);
+                const originalPassword = bytes.toString(CryptoJS.enc.Utf8);
 
-                if (!user) {
-                    return res.status(404).json({ message: "User not found." });
+                if (password !== originalPassword) {
+                    return res.status(401).json({ message: "Wrong password." });
                 } else {
-                    return res.status(200).json(user);
+                    const user = await User.findOne({ userID: authPhone.userID });
+
+                    res.status(200).json({ user });
                 }
             }
-
-            const bytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
-            const originalPassword = bytes.toString(CryptoJS.enc.Utf8);
-
-            if (originalPassword !== password) {
-                return res.status(401).json({ message: "Wrong password." });
-            }
-
-
         } catch (error) {
             console.error("Error during login:", error);
             res.status(500).json({ message: error.message });
         }
-
-
     }
+
 };
