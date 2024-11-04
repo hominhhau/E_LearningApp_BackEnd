@@ -7,6 +7,7 @@ const app = express();
 const port = 6002;
 
 const authRoutes = require('./routes/Auth');
+const userRoutes = require('./routes/User');
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(cors({
     credentials: true,
 }));
 app.use('/', authRoutes);
+app.use('/', userRoutes);
 
 
 app.listen(process.env.PORT || port, () => {
