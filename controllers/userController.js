@@ -2,24 +2,23 @@ const User = require('../models/User');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
-// Gửi email quên mật khẩu
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
 
-    // Tìm người dùng với email
+    // find user with email
     const user = await User.findOne({ email });
     if (!user) {
         return res.status(404).send('Email không tồn tại');
     }
 
-    // Tạo mã ngẫu nhiên và lưu vào cơ sở dữ liệu
+    // Luu db
     //const resetToken = crypto.randomBytes(32).toString('hex');
     const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // Hết hạn sau 1 giờ
+    user.resetPasswordExpires = Date.now() + 3600000; //1h
     await user.save();
 
-    // Gửi email chứa mã reset mật khẩu
+    
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
