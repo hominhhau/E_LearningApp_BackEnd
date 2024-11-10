@@ -8,6 +8,12 @@ const port = 6002;
 
 const authRoutes = require('./routes/Auth');
 
+const courseRoutes = require('./routes/Course');
+const lessonRoutes = require('./routes/Lesson');
+const categoryRoutes = require('./routes/category');
+const userRoutes = require('./routes/User');
+
+
 dotenv.config();
 
 var admin = require("firebase-admin");
@@ -32,6 +38,10 @@ app.use(cors({
     credentials: true,
 }));
 app.use('/', authRoutes);
+app.use('/', courseRoutes);
+app.use('/', lessonRoutes);
+app.use('/', categoryRoutes);
+app.use('/', userRoutes);
 
 
 app.listen(process.env.PORT || port, () => {
