@@ -12,5 +12,6 @@ router.put('/updateCourse:id', courseController.updateCourse);
 
 // Route để xóa khóa học
 router.delete('/deleteCourse:id', courseController.deleteCourse);
+router.post('/getCourseByUser', courseController.getCourseByUser);
 
 module.exports = router;

@@ -27,7 +27,7 @@ const CourseSchema = new mongoose.Schema({
     image: {
         url: {
             type: String,
-            default: 'https://example.com/default-course.png'
+            default: 'https://picsum.photos/200/300'
         },
         alt: {
             type: String,

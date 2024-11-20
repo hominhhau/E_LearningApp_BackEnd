@@ -55,24 +55,7 @@ module.exports = {
             return res.status(500).json({ success: false, message: error.message });
         }
     },
-    getCourseByUser: async (req, res) => {
-        const { userId } = req.body;
 
-        try {
-            const user = await User.findOne({ userID: userId }).populate('enrolledCourses.courseId');
-
-            if (!user) {
-                return res.status(404).json({ success: false, message: 'User not found' });
-            }
-
-            // Lấy thông tin chi tiết cho từng khóa học đã đăng ký
-            const courses = user.enrolledCourses.map(enrollment => enrollment.courseId);
-
-            return res.status(200).json({ success: true, courses });
-        } catch (error) {
-            return res.status(500).json({ success: false, message: error.message });
-        }
-    }
 
 
 
