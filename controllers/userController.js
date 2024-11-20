@@ -2,6 +2,7 @@ const User = require('../models/User');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
+
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
 
