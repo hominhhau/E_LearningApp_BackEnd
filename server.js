@@ -13,6 +13,7 @@ const lessonRoutes = require('./routes/Lesson');
 const categoryRoutes = require('./routes/category');
 const userRoutes = require('./routes/User');
 const chatRoutes = require('./routes/Chatgpt');
+const vnpay = require('./routes/vnpay');
 
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use('/', lessonRoutes);
 app.use('/', categoryRoutes);
 app.use('/', userRoutes);
 app.use('/', chatRoutes);
+app.use('/', vnpay);
 
 
 app.listen(process.env.PORT || port, () => {

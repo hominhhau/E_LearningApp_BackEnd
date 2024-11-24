@@ -25,14 +25,16 @@ module.exports = {
 
     // Lấy tất cả bài học theo khóa học
     getLessonsByCourse: async (req, res) => {
-        const { courseID } = req.params;
-
+        const { courseID } = req.body;
         try {
             const lessons = await Lesson.find({ courseID });
             res.status(200).json(lessons);
+
+
         } catch (error) {
             console.error("Error fetching lessons:", error);
             res.status(500).json({ message: error.message });
+
         }
     },
 
