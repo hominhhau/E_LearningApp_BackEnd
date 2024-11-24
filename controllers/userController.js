@@ -28,7 +28,7 @@ exports.forgotPassword = async (req, res) => {
     const mailOptions = {
         to: user.email,
         subject: 'E_LearningAPP thông báo: Yêu cầu reset mật khẩu',
-        text: `Mã reset mật khẩu của bạn là: ${resetToken}`,
+        text: `Chào bạn,\n\nChúng tôi đã nhận được yêu cầu reset mật khẩu cho tài khoản của bạn tại E-Learning App.\n\nMã reset mật khẩu của bạn là: ${resetToken}\n\nVui lòng nhập mã này vào trang reset mật khẩu trong vòng 1 giờ. Nếu bạn không yêu cầu thay đổi mật khẩu, bạn có thể bỏ qua email này và tài khoản của bạn sẽ không bị ảnh hưởng.\n\nChúc bạn học tập hiệu quả!\nTrân trọng,\nĐội ngũ E-Learning App`,
     };
 
     transporter.sendMail(mailOptions, (error) => {
