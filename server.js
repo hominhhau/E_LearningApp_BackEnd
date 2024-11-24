@@ -7,11 +7,11 @@ const app = express();
 const port = 6002;
 
 const authRoutes = require('./routes/Auth');
+const userRoutes = require('./routes/User');
 
 const courseRoutes = require('./routes/Course');
 const lessonRoutes = require('./routes/Lesson');
 const categoryRoutes = require('./routes/category');
-const userRoutes = require('./routes/User');
 
 
 dotenv.config();
@@ -38,6 +38,7 @@ app.use(cors({
     credentials: true,
 }));
 app.use('/', authRoutes);
+app.use('/', userRoutes);
 app.use('/', courseRoutes);
 app.use('/', lessonRoutes);
 app.use('/', categoryRoutes);
