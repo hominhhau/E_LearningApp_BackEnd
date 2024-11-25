@@ -38,11 +38,11 @@ const LessonSchema = new mongoose.Schema({
         required: true,
         min: 1
     },
-    minimumWatchRequired: {
-        type: Number,
-        default: 90, // Phần trăm video cần xem để hoàn thành (mặc định 90%)
-        min: 0,
-        max: 100
+    watchRequired: {
+        type: Boolean,
+        default: false, // Phần trăm video cần xem để hoàn thành (mặc định 90%)
+        // min: 0,
+        // max: 100
     }
 }, { timestamps: true, versionKey: false });
 
