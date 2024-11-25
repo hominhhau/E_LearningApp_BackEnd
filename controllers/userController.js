@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const PhoneAuth = require('../models/PhoneAuth');
 const Course = require('../models/Course');
+const Lesson = require('../models/Lesson');
 
 //Forgot Password
 exports.forgotPassword = async (req, res) => {
@@ -138,31 +139,100 @@ exports.resetPassword = async (req, res) => {
 // Enroll Course
 exports.enrollCourse = async (req, res) => {
     const { userId, courseId } = req.body;
+
     try {
+        // Find User
         const user = await User.findOne({ userID: userId });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Find Course
         const course = await Course.findOne({ courseID: courseId });
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Course not found' });
+        }
 
-        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-        if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
-
+        // Check if User is already enrolled in the course
         const alreadyEnrolled = user.enrolledCourses.some(
             (enrollment) => enrollment.courseId.toString() === course._id.toString()
         );
+        if (alreadyEnrolled) {
+            return res.status(400).json({ success: false, message: 'User is already enrolled in this course' });
+        }
 
-        if (alreadyEnrolled) return res.status(400).json({ success: false, message: 'User is already enrolled in this course' });
+        // Fetch lessons for the course
+        const lessons = await Lesson.find({ courseID: course._id });
 
+        // Initialize completedLessons with lessons from the course
+        const completedLessons = lessons.map((lesson) => ({
+            lessonId: lesson._id,
+            watchedDuration: 0,
+            isCompleted: false,
+            lastWatched: new Date(),
+        }));
+
+        // Add course to user's enrolled courses
         user.enrolledCourses.push({
             courseId: course._id,
             enrolledDate: new Date(),
-            completedLessons: [],
-            progress: 0
+            completedLessons,
+            progress: 0, // Initial progress
         });
 
+        // Save changes
         await user.save();
+
         res.status(200).json({ success: true, message: 'Enrolled in course successfully' });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Error enrolling course:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
     }
 };
+
+exports.updateLessonCompletion = async (req, res) => {
+    const { userId, courseId, lessonId, isCompleted } = req.body;
+
+    try {
+        // Find User and Course
+        const user = await User.findOne({ userID: userId, 'enrolledCourses.courseId': courseId });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User or course not found' });
+        }
+
+        // Find the specific course enrollment
+        const courseEnrollment = user.enrolledCourses.find(enrollment => enrollment.courseId.toString() === courseId);
+        if (!courseEnrollment) {
+            return res.status(404).json({ success: false, message: 'Course not found in user enrollments' });
+        }
+
+        // Find the lesson in the enrolled course
+        const lesson = courseEnrollment.completedLessons.find(lesson => lesson.lessonId.toString() === lessonId);
+        if (!lesson) {
+            return res.status(404).json({ success: false, message: 'Lesson not found' });
+        }
+
+        // Update the lesson's completion status
+        lesson.isCompleted = isCompleted;
+
+        // Recalculate progress
+        const totalLessons = courseEnrollment.completedLessons.length;
+        const completedCount = courseEnrollment.completedLessons.filter(lesson => lesson.isCompleted).length;
+        courseEnrollment.progress = (completedCount / totalLessons) * 100;
+
+        // Save changes
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'Lesson status updated', progress: courseEnrollment.progress });
+    } catch (error) {
+        console.error('Error updating lesson completion:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    }
+};
+
+
+
+
+
 
 

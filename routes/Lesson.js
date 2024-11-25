@@ -14,4 +14,10 @@ router.put('/updateLesson:id', lessonController.updateLesson);
 // Route để xóa bài học
 router.delete('/deleteLesson:id', lessonController.deleteLesson);
 
+// Route để cập nhật watchRequired
+router.post('/updateWatchRequired', lessonController.updateWatchRequired);
+
+// Route để lấy thống kê watchRequired
+router.post('/getWatchRequiredStats', lessonController.getWatchRequiredStats);
+
 module.exports = router;

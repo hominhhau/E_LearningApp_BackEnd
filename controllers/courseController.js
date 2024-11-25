@@ -97,42 +97,8 @@ module.exports = {
         }
     },
 
-    // Lấy các khóa học mà user chưa enroll
-    getUnenrolledCourses: async (req, res) => {
-        const { userId } = req.body;
 
-        try {
-            // Tìm user và populate các khóa học đã đăng ký
-            const user = await User.findOne({ userID: userId }).populate('enrolledCourses.courseId');
 
-            if (!user) {
-                return res.status(404).json({ success: false, message: 'User not found' });
-            }
-
-            // Log enrolled courses
-            console.log("User Enrolled Courses:", user.enrolledCourses);
-
-            // Lấy danh sách các khóa học đã đăng ký
-            const enrolledCourseIds = user.enrolledCourses.map(enrollment => enrollment.courseId.toString());
-            console.log("Enrolled Course IDs:", enrolledCourseIds); // Log the IDs
-
-            // Validate ObjectId format
-            const validCourseIds = enrolledCourseIds.filter(id => mongoose.Types.ObjectId.isValid(id));
-            console.log("Valid Course IDs:", validCourseIds); // Log valid IDs
-
-            // Tìm các khóa học không nằm trong danh sách đã đăng ký
-            const unenrolledCourses = await Course.find({
-                _id: { $nin: validCourseIds.map(id => new mongoose.Types.ObjectId(id)) }
-            });
-
-            console.log("Unenrolled Courses:", unenrolledCourses); // Log the unenrolled courses
-
-            return res.status(200).json({ success: true, unenrolledCourses });
-        } catch (error) {
-            console.error("Error fetching unenrolled courses:", error);
-            return res.status(500).json({ success: false, message: error.message });
-        }
-    },
 
     // Lấy cả khóa học đã đăng ký và khóa học chưa đăng ký
     getUnenrolledCourses: async (req, res) => {
@@ -169,6 +135,36 @@ module.exports = {
             return res.status(500).json({ success: false, message: error.message });
         }
     },
+    // tìm khóa học theo tên tìm tương đối
+    searchCourse: async (req, res) => {
+        const { keyword } = req.body;
+
+        // Validate that keyword is a string
+        if (typeof keyword !== 'string' || keyword.trim() === '') {
+            return res.status(400).json({ success: false, message: 'Keyword must be a non-empty string' });
+        }
+
+        try {
+            const courses = await Course.find({ name: { $regex: keyword, $options: 'i' } });
+            res.status(200).json(courses);
+        } catch (error) {
+            console.error("Error searching courses:", error);
+            res.status(500).json({ message: error.message });
+        }
+    },
+    //find course by category
+    getCourseByCategory: async (req, res) => {
+        const { categoryId } = req.body;
+
+        try {
+            const courses = await Course.find({ category: categoryId });
+            res.status(200).json(courses);
+        } catch (error) {
+            console.error("Error fetching courses by category:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
 };
 
 

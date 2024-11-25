@@ -20,5 +20,10 @@ router.post('/getCourseByUser', courseController.getCourseByUser);
 // Route để lấy các khóa học mà user chưa enroll
 router.post('/unenrolled-courses', courseController.getUnenrolledCourses);
 
+// Find courses by name search relative
+router.post('/searchCourse', courseController.searchCourse);
+// Route để lấy khóa học theo category
+router.post('/getCourseByCategory', courseController.getCourseByCategory);
+
 
 module.exports = router;

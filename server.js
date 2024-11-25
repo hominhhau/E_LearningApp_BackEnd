@@ -8,10 +8,10 @@ const port = 6002;
 
 const authRoutes = require('./routes/Auth');
 const userRoutes = require('./routes/User');
-
 const courseRoutes = require('./routes/Course');
 const lessonRoutes = require('./routes/Lesson');
 const categoryRoutes = require('./routes/category');
+const teacherRoutes = require('./routes/Teacher');
 
 
 dotenv.config();
@@ -43,6 +43,7 @@ app.use('/', courseRoutes);
 app.use('/', lessonRoutes);
 app.use('/', categoryRoutes);
 app.use('/', userRoutes);
+app.use('/', teacherRoutes);
 
 
 app.listen(process.env.PORT || port, () => {
