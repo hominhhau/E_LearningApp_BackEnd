@@ -25,7 +25,8 @@ module.exports = {
 
     // Lấy tất cả bài học theo khóa học
     getLessonsByCourse: async (req, res) => {
-        const { courseID } = req.params;
+        const { courseID } = req.body;
+        console.log("courseIDhjfdfh", courseID);
 
         try {
             const lessons = await Lesson.find({ courseID });

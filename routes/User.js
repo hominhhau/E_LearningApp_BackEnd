@@ -14,7 +14,7 @@ router.post('/reset-password', userController.resetPassword);
 
 
 // Route để tạo bài học mới
-//router.post('/enrollCourse', userController.enrollCourse);
+router.post('/enrollCourse', userController.enrollCourse);
 
 
 module.exports = router;

@@ -6,7 +6,7 @@ const lessonController = require('../controllers/lessonController');
 router.post('/createLesson', lessonController.createLesson);
 
 // Route để lấy tất cả bài học theo khóa học
-router.get('/:courseID', lessonController.getLessonsByCourse);
+router.post('/getLessonsByCourse', lessonController.getLessonsByCourse);
 
 // Route để cập nhật bài học
 router.put('/updateLesson:id', lessonController.updateLesson);
