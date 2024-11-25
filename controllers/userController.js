@@ -46,14 +46,14 @@ exports.verifyResetToken = async (req, res) => {
 
     console.log('Email:', email);  // In email nhận được từ frontend
     console.log('Reset Token:', resetToken);  // In mã nhận được từ frontend
-    console.log('--------------------------------'); 
-    
+    console.log('--------------------------------');
+
     const user = await User.findOne({
-      email: email.toLowerCase(),
-      resetPasswordToken: resetToken,
-      resetPasswordExpires: { $gt: Date.now() }, // Kiểm tra mã hết hạn
+        email: email.toLowerCase(),
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: { $gt: Date.now() }, // Kiểm tra mã hết hạn
     });
-  
+
     if (!user) {
         console.log('User not found or token expired');  // Ghi lại lỗi nếu không tìm thấy người dùng hoặc token hết hạn
         //return res.status(400).send('Mã reset mật khẩu không hợp lệ hoặc đã hết hạn');
@@ -68,7 +68,7 @@ exports.verifyResetToken = async (req, res) => {
         success: true,
         message: 'Mã hợp lệ, bạn có thể tạo mật khẩu mới',
     });
-  };
+};
 
 // Đặt lại mật khẩu
 exports.resetPassword = async (req, res) => {
@@ -85,21 +85,21 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!user) {
-       // return res.status(400).send('Mã reset mật khẩu không hợp lệ hoặc đã hết hạn');
-       return res.status(400).json({
-        success: false,
-        message: 'Mã reset mật khẩu không hợp lệ hoặc đã hết hạn',
-       })
+        // return res.status(400).send('Mã reset mật khẩu không hợp lệ hoặc đã hết hạn');
+        return res.status(400).json({
+            success: false,
+            message: 'Mã reset mật khẩu không hợp lệ hoặc đã hết hạn',
+        })
     }
 
-     //Cập nhật mật khẩu trong PhoneAuth
-     const phoneAuth = await PhoneAuth.findOne({ userID: user.userID });
-     if (!phoneAuth) {
-         return res.status(404).json({
-             success: false,
-             message: 'Không tìm thấy thông tin tài khoản',
-         });
-     }
+    //Cập nhật mật khẩu trong PhoneAuth
+    const phoneAuth = await PhoneAuth.findOne({ userID: user.userID });
+    if (!phoneAuth) {
+        return res.status(404).json({
+            success: false,
+            message: 'Không tìm thấy thông tin tài khoản',
+        });
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     phoneAuth.password = hashedPassword;
@@ -133,7 +133,7 @@ exports.resetPassword = async (req, res) => {
     //res.status(200).json({ success: true, message: 'Mật khẩu đã được cập nhật' });
 };
 
-  
+
 
 // Enroll Course
 exports.enrollCourse = async (req, res) => {
@@ -164,3 +164,5 @@ exports.enrollCourse = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+

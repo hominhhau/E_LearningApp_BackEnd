@@ -1,6 +1,7 @@
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 module.exports = {
     // Tạo khóa học mới
@@ -94,8 +95,82 @@ module.exports = {
         } catch (error) {
             return res.status(500).json({ success: false, message: error.message });
         }
-    }
+    },
+
+    // Lấy các khóa học mà user chưa enroll
+    getUnenrolledCourses: async (req, res) => {
+        const { userId } = req.body;
+
+        try {
+            // Tìm user và populate các khóa học đã đăng ký
+            const user = await User.findOne({ userID: userId }).populate('enrolledCourses.courseId');
+
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Log enrolled courses
+            console.log("User Enrolled Courses:", user.enrolledCourses);
+
+            // Lấy danh sách các khóa học đã đăng ký
+            const enrolledCourseIds = user.enrolledCourses.map(enrollment => enrollment.courseId.toString());
+            console.log("Enrolled Course IDs:", enrolledCourseIds); // Log the IDs
+
+            // Validate ObjectId format
+            const validCourseIds = enrolledCourseIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+            console.log("Valid Course IDs:", validCourseIds); // Log valid IDs
+
+            // Tìm các khóa học không nằm trong danh sách đã đăng ký
+            const unenrolledCourses = await Course.find({
+                _id: { $nin: validCourseIds.map(id => new mongoose.Types.ObjectId(id)) }
+            });
+
+            console.log("Unenrolled Courses:", unenrolledCourses); // Log the unenrolled courses
+
+            return res.status(200).json({ success: true, unenrolledCourses });
+        } catch (error) {
+            console.error("Error fetching unenrolled courses:", error);
+            return res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Lấy cả khóa học đã đăng ký và khóa học chưa đăng ký
+    getUnenrolledCourses: async (req, res) => {
+        const { userId } = req.body; // Lấy userId từ request body
+
+        try {
+            // Tìm user và populate các khóa học đã đăng ký
+            const user = await User.findOne({ userID: userId }).populate('enrolledCourses.courseId');
+
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Lấy danh sách ID các khóa học đã đăng ký
+            const enrolledCoursesIds = user.enrolledCourses.map(enrollment => enrollment.courseId?._id.toString());
+            console.log("Enrolled Courses IDs:", enrolledCoursesIds); // Debug: Log danh sách ID khóa học đã đăng ký
+
+            // Lấy tất cả khóa học
+            const allCourses = await Course.find(); // Lấy tất cả các khóa học từ collection
+            console.log("All Courses:", allCourses); // Debug: Log danh sách tất cả khóa học
+
+            // Tìm các khóa học chưa được đăng ký
+            const unenrolledCourses = allCourses.filter(course =>
+                !enrolledCoursesIds.includes(course._id.toString())
+            );
+
+            // Trả về danh sách khóa học chưa đăng ký
+            return res.status(200).json({
+                success: true,
+                unenrolledCourses
+            });
+        } catch (error) {
+            console.error("Error fetching unenrolled courses:", error);
+            return res.status(500).json({ success: false, message: error.message });
+        }
+    },
 };
+
 
 async function addLessonToCourse(courseId, lessonId) {
     try {
