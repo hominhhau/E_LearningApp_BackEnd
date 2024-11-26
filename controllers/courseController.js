@@ -1,6 +1,7 @@
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 module.exports = {
     // Tạo khóa học mới
@@ -94,8 +95,78 @@ module.exports = {
         } catch (error) {
             return res.status(500).json({ success: false, message: error.message });
         }
+    },
+
+
+
+
+    // Lấy cả khóa học đã đăng ký và khóa học chưa đăng ký
+    getUnenrolledCourses: async (req, res) => {
+        const { userId } = req.body; // Lấy userId từ request body
+
+        try {
+            // Tìm user và populate các khóa học đã đăng ký
+            const user = await User.findOne({ userID: userId }).populate('enrolledCourses.courseId');
+
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Lấy danh sách ID các khóa học đã đăng ký
+            const enrolledCoursesIds = user.enrolledCourses.map(enrollment => enrollment.courseId?._id.toString());
+            console.log("Enrolled Courses IDs:", enrolledCoursesIds); // Debug: Log danh sách ID khóa học đã đăng ký
+
+            // Lấy tất cả khóa học
+            const allCourses = await Course.find(); // Lấy tất cả các khóa học từ collection
+            console.log("All Courses:", allCourses); // Debug: Log danh sách tất cả khóa học
+
+            // Tìm các khóa học chưa được đăng ký
+            const unenrolledCourses = allCourses.filter(course =>
+                !enrolledCoursesIds.includes(course._id.toString())
+            );
+
+            // Trả về danh sách khóa học chưa đăng ký
+            return res.status(200).json({
+                success: true,
+                unenrolledCourses
+            });
+        } catch (error) {
+            console.error("Error fetching unenrolled courses:", error);
+            return res.status(500).json({ success: false, message: error.message });
+        }
+    },
+    // tìm khóa học theo tên tìm tương đối
+    searchCourse: async (req, res) => {
+        const { keyword } = req.body;
+
+        // Validate that keyword is a string
+        if (typeof keyword !== 'string' || keyword.trim() === '') {
+            return res.status(400).json({ success: false, message: 'Keyword must be a non-empty string' });
+        }
+
+        try {
+            const courses = await Course.find({ name: { $regex: keyword, $options: 'i' } });
+            res.status(200).json(courses);
+        } catch (error) {
+            console.error("Error searching courses:", error);
+            res.status(500).json({ message: error.message });
+        }
+    },
+    //find course by category
+    getCourseByCategory: async (req, res) => {
+        const { categoryId } = req.body;
+
+        try {
+            const courses = await Course.find({ category: categoryId });
+            res.status(200).json(courses);
+        } catch (error) {
+            console.error("Error fetching courses by category:", error);
+            res.status(500).json({ message: error.message });
+        }
     }
+
 };
+
 
 async function addLessonToCourse(courseId, lessonId) {
     try {

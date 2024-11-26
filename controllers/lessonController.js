@@ -26,6 +26,8 @@ module.exports = {
     // Lấy tất cả bài học theo khóa học
     getLessonsByCourse: async (req, res) => {
         const { courseID } = req.body;
+        console.log("courseIDhjfdfh", courseID);
+
         try {
             const lessons = await Lesson.find({ courseID });
             res.status(200).json(lessons);
@@ -61,6 +63,45 @@ module.exports = {
             res.status(204).send();
         } catch (error) {
             console.error("Error deleting lesson:", error);
+            res.status(500).json({ message: error.message });
+        }
+    },
+    updateWatchRequired: async (req, res) => {
+        const { id } = req.body;
+
+        try {
+            const updatedLesson = await Lesson.findByIdAndUpdate(
+                id,
+                { watchRequired: true },
+                { new: true }
+            );
+            res.status(200).json(updatedLesson);
+        } catch (error) {
+            console.error("Error updating watch required:", error);
+            res.status(500).json({ message: error.message });
+        }
+    },
+    getWatchRequiredStats: async (req, res) => {
+        const { courseID } = req.body;
+
+        try {
+            const lessons = await Lesson.find({ courseID });
+            const totalLessons = lessons.length;
+            const watchRequiredTrueCount = lessons.filter(lesson => lesson.watchRequired).length;
+            const watchRequiredFalseCount = totalLessons - watchRequiredTrueCount;
+
+            const truePercentage = (watchRequiredTrueCount / totalLessons) * 100;
+            const falsePercentage = (watchRequiredFalseCount / totalLessons) * 100;
+
+            res.status(200).json({
+                totalLessons,
+                watchRequiredTrueCount,
+                watchRequiredFalseCount,
+                truePercentage,
+                falsePercentage
+            });
+        } catch (error) {
+            console.error("Error fetching watch required stats:", error);
             res.status(500).json({ message: error.message });
         }
     }

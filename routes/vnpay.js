@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-
 const vnpayController = require('../controllers/vnpayController');
 
-// Route để tạo bài học mới
+// Route to handle creating VNPAY payment URL
 router.post('/createPaymentUrl', vnpayController.createPaymentUrl);
-router.post('/order/vnpay_return', vnpayController.vnpayReturn);
+
+// Route to handle VNPAY return callback
+router.get('/order/vnpay_return', vnpayController.vnpayReturn);
 
 module.exports = router;
