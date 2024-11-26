@@ -31,9 +31,12 @@ module.exports = {
         try {
             const lessons = await Lesson.find({ courseID });
             res.status(200).json(lessons);
+
+
         } catch (error) {
             console.error("Error fetching lessons:", error);
             res.status(500).json({ message: error.message });
+
         }
     },
 

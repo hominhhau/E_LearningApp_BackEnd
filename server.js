@@ -7,12 +7,14 @@ const app = express();
 const port = 6002;
 
 const authRoutes = require('./routes/Auth');
-const userRoutes = require('./routes/User');
 const courseRoutes = require('./routes/Course');
 const lessonRoutes = require('./routes/Lesson');
 const categoryRoutes = require('./routes/category');
 const teacherRoutes = require('./routes/Teacher');
+const userRoutes = require('./routes/User');
 const chatRoutes = require('./routes/Chatgpt');
+const vnpay = require('./routes/vnpay');
+const invoiceRoutes = require('./routes/Invoice');
 
 
 dotenv.config();
@@ -45,6 +47,10 @@ app.use('/', lessonRoutes);
 app.use('/', categoryRoutes);
 app.use('/', userRoutes);
 app.use('/', teacherRoutes);
+app.use('/', chatRoutes);
+app.use('/', vnpay);
+app.use('/', invoiceRoutes);
+
 app.use('/', chatRoutes);
 
 

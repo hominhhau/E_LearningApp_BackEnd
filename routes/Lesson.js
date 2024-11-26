@@ -13,6 +13,8 @@ router.put('/updateLesson:id', lessonController.updateLesson);
 
 // Route để xóa bài học
 router.delete('/deleteLesson:id', lessonController.deleteLesson);
+//getLessonsByCourse
+router.post('/getLessonsByCourse', lessonController.getLessonsByCourse);
 
 // Route để cập nhật watchRequired
 router.post('/updateWatchRequired', lessonController.updateWatchRequired);
