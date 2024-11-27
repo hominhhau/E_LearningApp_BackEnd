@@ -139,16 +139,17 @@ exports.resetPassword = async (req, res) => {
 // Enroll Course
 exports.enrollCourse = async (req, res) => {
     const { userId, courseId } = req.body;
-
+    console.log('userId EN:', userId);
+    console.log('courseId EN:', courseId);
     try {
-        // Find User
-        const user = await User.findOne({ userID: userId });
+        // Find User _id
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Find Course
-        const course = await Course.findOne({ courseID: courseId });
+        // Find Course _id
+        const course = await Course.findById(courseId);
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }

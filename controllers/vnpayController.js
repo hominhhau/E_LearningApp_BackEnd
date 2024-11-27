@@ -21,10 +21,11 @@ module.exports = {
         console.log("secretKey", secretKey);
         let vnpUrl = config.get('vnp_Url');
         let returnUrl = config.get('vnp_ReturnUrl');
-        let orderId = moment(date).format('DDHHmmss');
-        const { amount } = req.body;
+        const { invoiceID, amount } = req.body;
+        let orderId = invoiceID;
 
-        console.log("amount", amount);
+
+        console.log("amount", amount.amount);
 
         let locale = "vn";
 
@@ -35,7 +36,7 @@ module.exports = {
         vnp_Params['vnp_TmnCode'] = tmnCode;
         vnp_Params['vnp_Locale'] = locale;
         vnp_Params['vnp_CurrCode'] = currCode;
-        vnp_Params['vnp_TxnRef'] = orderId;
+        vnp_Params['vnp_TxnRef'] = moment().format('YYYYMMDDHHmmss');
         vnp_Params['vnp_OrderInfo'] = 'Thanh toan cho ma GD:' + orderId;
         vnp_Params['vnp_OrderType'] = 'other';
         vnp_Params['vnp_Amount'] = amount.amount;

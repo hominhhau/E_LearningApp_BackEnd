@@ -5,7 +5,7 @@ const invoiceController = require('../controllers/invoiceController');
 // Route để tạo bài học mới
 router.post('/createInvoice', invoiceController.createInvoice);
 
-// Route để lấy tất cả bài học theo khóa học
-router.post('/getInvoicesByCourse', invoiceController.getInvoiceByUser);
+
+router.post('/getInvoicesByUser', invoiceController.getInvoiceByUser);
 
 module.exports = router;

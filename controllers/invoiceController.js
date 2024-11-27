@@ -7,16 +7,13 @@ module.exports = {
     createInvoice: async (req, res) => {
         try {
             const { invoiceID, userID, courseID, price, status } = req.body;
-            console.log("invoice", req.body);
 
-            const user = await User.findById(userID);
-            if (!user) {
-                return res.status(404).json({ message: "User not found" });
-            }
-            const course = await Course.findById(courseID);
-            if (!course) {
-                return res.status(404).json({ message: "Course not found" });
-            }
+            console.log("invoiceID", invoiceID);
+            console.log("userID", userID);
+            console.log("courseID", courseID);
+            console.log("price", price);
+            console.log("status", status);
+
             const invoice = new Invoice({
                 invoiceID,
                 userID,

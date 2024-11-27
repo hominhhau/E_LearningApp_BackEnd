@@ -77,6 +77,7 @@ module.exports = {
             res.status(500).json({ message: error.message });
         }
     },
+    //courseId, progress
     getCourseByUser: async (req, res) => {
         const { userId } = req.body;
         console.log("userIdsfsf", userId);
@@ -89,14 +90,19 @@ module.exports = {
             }
 
             // Lấy thông tin chi tiết cho từng khóa học đã đăng ký
-            const courses = user.enrolledCourses.map(enrollment => enrollment.courseId);
-
+            //const courses = user.enrolledCourses.map(enrollment => enrollment.courseId);
+            const courses = user.enrolledCourses.map(enrollment => {
+                const { courseId, progress } = enrollment;
+                return {
+                    courseId,
+                    progress, // Mức độ hoàn thiện
+                };
+            });
             return res.status(200).json({ success: true, courses });
         } catch (error) {
             return res.status(500).json({ success: false, message: error.message });
         }
     },
-
 
 
 
