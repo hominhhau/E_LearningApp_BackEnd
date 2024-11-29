@@ -13,7 +13,7 @@ module.exports = {
             messages: [
                 { role: "user", content: message } // Set the user's message
             ],
-            max_tokens: 150,
+            max_tokens: 500,
             temperature: 0.8,
             top_p: 1,
             n: 1,

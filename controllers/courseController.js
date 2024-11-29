@@ -111,7 +111,7 @@ module.exports = {
         const { userId } = req.body; // Lấy userId từ request body
 
         try {
-            // Tìm user và populate các khóa học đã đăng ký
+            // Tìm user và populate các khóa học đ đăng ký
             const user = await User.findOne({ userID: userId }).populate('enrolledCourses.courseId');
 
             if (!user) {
@@ -169,9 +169,36 @@ module.exports = {
             console.error("Error fetching courses by category:", error);
             res.status(500).json({ message: error.message });
         }
-    }
+    },
+    // get course enrolled by user
+    // Lấy danh sách khóa học đã đăng ký
+    getEnrolledCourses: async (req, res) => {
+        const { userId } = req.body;
+
+        try {
+            const user = await User.findOne({ userID: userId }).populate('enrolledCourses.courseId');
+
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Lấy danh sách khóa học đã đăng ký
+            const enrolledCourses = user.enrolledCourses.map(enrollment => ({
+                courseId: enrollment.courseId._id.toString(), // Chuyển đổi ID khóa học thành chuỗi
+                name: enrollment.courseId.name, // Tên khóa học
+                progress: enrollment.progress, // Tiến độ
+                enrolledDate: enrollment.enrolledDate, // Ngày đăng ký
+            }));
+
+            return res.status(200).json({ success: true, enrolledCourses });
+        } catch (error) {
+            console.error("Error fetching enrolled courses:", error);
+            return res.status(500).json({ success: false, message: error.message });
+        }
+    },
 
 };
+
 
 
 async function addLessonToCourse(courseId, lessonId) {

@@ -25,5 +25,8 @@ router.post('/searchCourse', courseController.searchCourse);
 // Route để lấy khóa học theo category
 router.post('/getCourseByCategory', courseController.getCourseByCategory);
 
+// Route để lấy các khóa học mà user enroll
+router.post('/enrolled-courses', courseController.getEnrolledCourses);
+
 
 module.exports = router;
