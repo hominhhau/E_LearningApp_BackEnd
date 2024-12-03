@@ -8,5 +8,7 @@ router.post('/registerByPhone', authController.registerByPhone);
 // router.post('/verify-reset-token', authController.verifyResetToken);
 //router.post('/reset-password', authController.resetPassword);
 
+router.post('/changePassword', authController.changePassword);
+
 
 module.exports = router;
