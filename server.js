@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = 6002;
+const mongodb = require('mongodb');
 
 const authRoutes = require('./routes/Auth');
 const courseRoutes = require('./routes/Course');
@@ -26,13 +27,20 @@ var serviceAccount = require("./serviceAccountKey.json");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
-
-
-mongoose.connect(process.env.MONGO_URL).then(() => {
-    console.log('Connected to MongoDB');
+mongoose.connect(process.env.MONGO_URL_AZURE).then(() => {
+    console.log('Connected to MongoDB Azure');
 }).catch((err) => {
     console.log(err);
 });
+
+
+
+// mongoose.connect(process.env.MONGO_URL).then(() => {
+//     console.log('Connected to MongoDB');
+// }).catch((err) => {
+//     console.log(err);
+// });
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
