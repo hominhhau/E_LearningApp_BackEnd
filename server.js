@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-const port = 6002;
+const port = process.env.PORT || 6002;
 const mongodb = require('mongodb');
 
 const authRoutes = require('./routes/Auth');
@@ -27,11 +27,41 @@ var serviceAccount = require("./serviceAccountKey.json");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
-mongoose.connect(process.env.MONGO_URL_AZURE).then(() => {
-    console.log('Connected to MongoDB Azure');
-}).catch((err) => {
-    console.log(err);
-});
+// mongoose.connect(process.env.MONGO_URL_AZURE).then(() => {
+//     console.log('Connected to MongoDB Azure');
+// }).catch((err) => {
+//     console.log(err);
+// });
+
+
+const connectWithRetry = async (maxRetries = 3) => {
+    let retries = 0;
+
+    while (retries < maxRetries) {
+        try {
+            retries++; // Tăng số lần thử
+            console.log(`🔄 Attempt ${retries} to connect to MongoDB Azure...`);
+
+            // Thử kết nối
+            await mongoose.connect(process.env.MONGO_URL_AZURE);
+            console.log('✅ Connected to MongoDB Azure');
+            return; // Kết nối thành công, thoát khỏi hàm
+        } catch (err) {
+            console.error(`❌ Attempt ${retries} failed:`, err);
+
+            if (retries < maxRetries) {
+                console.log(`⏳ Retrying to connect in 2 seconds... (${retries}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ 2 giây
+            } else {
+                console.error(`❗ All ${maxRetries} connection attempts failed. Exiting...`);
+                process.exit(1); // Thoát chương trình với mã lỗi
+            }
+        }
+    }
+};
+
+// Gọi hàm kết nối
+connectWithRetry();
 
 
 
@@ -53,7 +83,6 @@ app.use('/', userRoutes);
 app.use('/', courseRoutes);
 app.use('/', lessonRoutes);
 app.use('/', categoryRoutes);
-app.use('/', userRoutes);
 app.use('/', teacherRoutes);
 app.use('/', chatRoutes);
 app.use('/', vnpay);
@@ -62,6 +91,6 @@ app.use('/', invoiceRoutes);
 app.use('/', chatRoutes);
 
 
-app.listen(process.env.PORT || port, () => {
+app.listen(port, () => {
     console.log(`E Learning backend app listening at http://localhost:${port}`);
 });
