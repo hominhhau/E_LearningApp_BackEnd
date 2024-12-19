@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 6002;
 const mongodb = require('mongodb');
@@ -88,8 +89,14 @@ app.use('/', chatRoutes);
 app.use('/', vnpay);
 app.use('/', invoiceRoutes);
 
-app.use('/', chatRoutes);
 
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve the index.html file at the root URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.listen(port, () => {
     console.log(`E Learning backend app listening at http://localhost:${port}`);
